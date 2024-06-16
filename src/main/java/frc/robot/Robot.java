@@ -13,7 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.util.sendable.SendableRegistry;
 
 //imports to allow use of victorspx motorcontrollers for claw and climber
-//import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.PowerDistribution;
