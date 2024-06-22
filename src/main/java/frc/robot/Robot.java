@@ -267,6 +267,14 @@ public class Robot extends TimedRobot {
     m_climber.setIdleMode(IdleMode.kBrake);
 
     m_groundIntake.setIdleMode(IdleMode.kBrake);
+
+    frontCamera = CameraServer.startAutomaticCapture(0);
+    backCamera = CameraServer.startAutomaticCapture(1);
+    server = CameraServer.getServer();
+    frontCamera.setFPS(10);
+    backCamera.setFPS(10);
+    frontCamera.setResolution(100, 100);
+    backCamera.setResolution(100, 100);
   }
 
   /**
