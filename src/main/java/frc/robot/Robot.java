@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
 UsbCamera frontCamera;
 UsbCamera backCamera;
 VideoSink server;
+
 //PowerDistribution pd = new PowerDistribution(module:0, ModuleType.kCTRE);
 
  //these names are new for the mecanum drive class
@@ -318,7 +319,13 @@ private MecanumDrive m_robotDrive;
   @Override
   public void autonomousPeriodic() {
 
-   // double timeElapsed = Timer.getFPGATimestamp() - autonomousStartTime;
+   double timeElapsed = Timer.getFPGATimestamp() - autonomousStartTime;
+
+   if (timeElapsed <= 4){
+    m_robotDrive.driveCartesian(0.6 , 0, 0);
+   } else {
+    m_robotDrive.driveCartesian(0, 0, 0);
+   }
 
     /*
      * Spins up launcher wheel until time spent in auto is greater than AUTO_LAUNCH_DELAY_S
