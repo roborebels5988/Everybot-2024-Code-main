@@ -10,10 +10,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.util.sendable.SendableRegistry;
 
 //imports to allow use of victorspx motorcontrollers for claw and climber
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 
 import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.PowerDistribution;
@@ -45,19 +46,6 @@ UsbCamera frontCamera;
 UsbCamera backCamera;
 VideoSink server;
 //PowerDistribution pd = new PowerDistribution(module:0, ModuleType.kCTRE);
-
-  /*
-   * Drive motor controller instances. This is for the original differential drive class for Everybot
-   *
-   * Change the id's to match your robot.
-   * Change kBrushed to kBrushless if you are uisng NEOs.
-   * The rookie kit comes with CIMs which are brushed motors.
-   * Use the appropriate other class if you are using different controllers.
-   */
- //CANSparkBase leftRear = new CANSparkMax(1, MotorType.kBrushed);
- // CANSparkBase leftFront = new CANSparkMax(2, MotorType.kBrushed);
- // CANSparkBase rightRear = new CANSparkMax(3, MotorType.kBrushed);
- // CANSparkBase rightFront = new CANSparkMax(4, MotorType.kBrushed);
 
  //these names are new for the mecanum drive class
 private static final int kFrontLeftDeviceID =2;
@@ -107,6 +95,10 @@ private MecanumDrive m_robotDrive;
    */
   CANSparkBase m_climber = new CANSparkMax(7, MotorType.kBrushed);
 //MotorController m_climber = new WPI_VictorSPX(7);
+
+ CANSparkBase m_groundIntake = new CANSparkMax(9, MotorType.kBrushed);
+
+
     /**
    * The starter code uses the most generic joystick class.
    *
@@ -118,7 +110,6 @@ private MecanumDrive m_robotDrive;
    */
   Joystick m_driverController = new Joystick(0);
 
-
   Joystick m_manipController = new Joystick(1);
 
   // --------------- Magic numbers. Use these to adjust settings. ---------------
@@ -126,12 +117,12 @@ private MecanumDrive m_robotDrive;
  /**
    * How many amps can an individual drivetrain motor use.
    */
-  static final int DRIVE_CURRENT_LIMIT_A = 60;
+  //static final int DRIVE_CURRENT_LIMIT_A = 60;
 
   /**
    * How many amps the feeder motor can use.
    */
-  static final int FEEDER_CURRENT_LIMIT_A = 60;
+  static final int FEEDER_CURRENT_LIMIT_A = 100;
 
   /**
    * Percent output to run the feeder when expelling note
@@ -141,38 +132,39 @@ private MecanumDrive m_robotDrive;
   /**
    * Percent output to run the feeder when intaking note
    */
-  static final double FEEDER_IN_SPEED = -.4;
+  static final double FEEDER_IN_SPEED = -1;
 
   /**
    * Percent output for amp or drop note, configure based on polycarb bend
    */
-  static final double FEEDER_AMP_SPEED = .4;
+  static final double FEEDER_AMP_SPEED = 1;
 
   /**
    * How many amps the launcher motor can use.
    *
    * In our testing we favored the CIM over NEO, if using a NEO lower this to 60
-   */
-  static final int LAUNCHER_CURRENT_LIMIT_A = 60;
+  static final int LAUNCHER_CURRENT_LIMIT_A = 100;
 
   /**
    * Percent output to run the launcher when intaking AND expelling note
    */
   static final double LAUNCHER_SPEED = 1.0;
 
+  /** percent output to run groundintake */
+  static final double INTAKE_SPEED = 1.0;
   /**
    * Percent output for scoring in amp or dropping note, configure based on polycarb bend
    * .14 works well with no bend from our testing
    */
-  static final double LAUNCHER_AMP_SPEED = .17;
+  static final double LAUNCHER_AMP_SPEED = .5;
   /**
    * Percent output for the roller claw
-   */
-  static final double CLAW_OUTPUT_POWER = .5;
+    */
+  static final double CLAW_OUTPUT_POWER = 1;
   /**
    * Percent output to help retain notes in the claw
    */
-  static final double CLAW_STALL_POWER = .1;
+  //static final double CLAW_STALL_POWER = .1;
   /**
    * Percent output to power the climber
    */
@@ -214,10 +206,10 @@ private MecanumDrive m_robotDrive;
  /*
      * Apply the current limit to the drivetrain motors
      */
-   m_leftFrontMotor. setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
-   m_leftRearMotor.setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
-   m_rightFrontMotor.setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
-   m_rightRearMotor. setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
+   //m_leftFrontMotor. setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
+   //m_leftRearMotor.setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
+   //m_rightFrontMotor.setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
+   //m_rightRearMotor. setSmartCurrentLimit(DRIVE_CURRENT_LIMIT_A);
 
  /*
      * Launcher wheel(s) spinning the wrong direction? Change to true here.
@@ -230,8 +222,8 @@ private MecanumDrive m_robotDrive;
     /*
      * Apply the current limit to the launching mechanism
      */
-    m_feedWheel.setSmartCurrentLimit(FEEDER_CURRENT_LIMIT_A);
-    m_launchWheel.setSmartCurrentLimit(LAUNCHER_CURRENT_LIMIT_A);
+    //m_feedWheel.setSmartCurrentLimit(FEEDER_CURRENT_LIMIT_A);
+   // m_launchWheel.setSmartCurrentLimit(LAUNCHER_CURRENT_LIMIT_A);
 
     /*
      * Inverting and current limiting for roller claw and climber
@@ -241,7 +233,7 @@ private MecanumDrive m_robotDrive;
 
    // setsmart current method is for sparkmax not victors, same for idle brake mode
    //m_rollerClaw.setSmartCurrentLimit(60);
-   //m_climber.setSmartCurrentLimit(60);
+  m_climber.setSmartCurrentLimit(60);
 
     /*
      * Motors can be set to idle in brake or coast mode.
@@ -249,13 +241,10 @@ private MecanumDrive m_robotDrive;
      * Brake mode is best for these mechanisms
      */
     //m_rollerClaw.setIdleMode(IdleMode.kBrake);
-    //m_climber.setIdleMode(IdleMode.kBrake);
+    m_climber.setIdleMode(IdleMode.kBrake);
 
+    m_groundIntake.setIdleMode(IdleMode.kBrake);
       }
-
-   
-  
-
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test modes.
@@ -466,6 +455,17 @@ private MecanumDrive m_robotDrive;
     else
     {
       m_rollerClaw.set(0);
+    }
+
+ /** groundintake
+     * Hold one of the two buttons to intake or exjest note from ground intake
+     */ 
+    if (m_manipController.getRawButton(8)) {
+      m_groundIntake.set(INTAKE_SPEED);
+    }
+    else if(m_manipController.getRawButtonReleased(8))
+    {
+      m_groundIntake.set(0);
     }
 
     /**
